@@ -11,4 +11,4 @@ refreshInterval = setInterval(refreshAccessToken(twitchClientId, twitchClientSec
 
 
 
-setInterval(checkStreamInfo, 1000 * 15); // check every 15 serconds
+setInterval(checkStreamInfo, 1000 * 15); // check every 15 seconds
