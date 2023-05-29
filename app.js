@@ -4,11 +4,10 @@ let twitchAccessToken = process.env.TWITCH_ACCESS_TOKEN;
 const refreshToken = process.env.REFRESH_TOKEN;
 const twitchClientSecret = process.env.TWITCH_CLIENT_SECRET;
 
-let refreshInterval;
+
 const refreshAccessToken = require('./utils/refreshAccessToken');
-const checkTitleChange = require('./utils/streamInfo');
 // twitchのアクセストークンをリフッレシュ
-refreshInterval = setInterval(refreshAccessToken(twitchClientId, twitchClientSecret, twitchAccessToken, refreshToken, refreshInterval), 1000 * 60 * 30);
+setInterval(refreshAccessToken(twitchClientId, twitchClientSecret, twitchAccessToken, refreshToken), 1000 * 60 * 30);
 
 // 配信情報を確認
 const checkTitleChange = require('./utils/streamInfo');
