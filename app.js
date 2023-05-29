@@ -7,7 +7,13 @@ const twitchClientSecret = process.env.TWITCH_CLIENT_SECRET;
 
 const refreshAccessToken = require('./utils/refreshAccessToken');
 // twitchのアクセストークンをリフッレシュ
-setInterval(refreshAccessToken(twitchClientId, twitchClientSecret, twitchAccessToken, refreshToken), 1000 * 60 * 30);
+setInterval(() => {
+    refreshAccessToken(twitchClientId, twitchClientSecret, twitchAccessToken, refreshToken);
+}, 1000 * 60 * 30);
+
+
+// setInterval(refreshAccessToken(twitchClientId, twitchClientSecret, twitchAccessToken, refreshToken), 1000 * 60 * 30);
+// 上の場合だとエラーになる
 
 // 配信情報を確認
 const checkTitleChange = require('./utils/streamInfo');
