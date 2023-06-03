@@ -9,13 +9,13 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "aws-sdk": "^2.1341.0",
-        "express": "^4.18.2",
-        "google-spreadsheet": "^3.3.0",
+        "aws-sdk": "^2.1386.0",
+        "dotenv": "^16.0.3",
+        "googleapis": "^118.0.0",
         "nodemailer": "^6.9.1",
         "request": "^2.88.0",
         "request-promise": "^4.2.4",
         "tmi.js": "^1.8.5",
-        "twitter": "^1.7.1"
+        "twitter-api-v2": "^1.14.3"
     }
 }
