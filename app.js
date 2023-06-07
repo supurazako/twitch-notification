@@ -7,11 +7,32 @@ const refreshToken = process.env.REFRESH_TOKEN;
 const twitchClientSecret = process.env.TWITCH_CLIENT_SECRET;
 
 
-const refreshAccessToken = require('./utils/refreshAccessToken');
 // twitchのアクセストークンをリフッレシュ
-setInterval(() => {
-    refreshAccessToken.refreshAccessToken(twitchClientId, twitchClientSecret, twitchAccessToken, refreshToken);
-}, 1000 * 60 * 30);
+// async function refreshAccessToken() {
+//     const refreshTokenUrl = `https://id.twitch.tv/oauth2/token?grant_type=refresh_token&refresh_token=${refreshToken}&client_id=${twitchClientId}&client_secret=${twitchClientSecret}`;
+//     const response = await fetch(refreshTokenUrl, { method: 'POST'});
+//     const data = await response.json();
+//     twitchAccessToken = data.access_token;
+//     console.log(`Access token refreshed: ${twitchAccessToken}`);
+// }
+let refreshInterval;
+
+
+const refreshAccessToken = async () => {
+    try{
+        const fetch = require('node-fetch');
+
+        const refreshTokenUrl = `https://id.twitch.tv/oauth2/token?grant_type=refresh_token&refresh_token=${refreshToken}&client_id=${twitchClientId}&client_secret=${twitchClientSecret}`;
+        const response = await fetch(refreshTokenUrl, { method: 'POST' });
+        const data = await response.json();
+        twitchAccessToken = data.access_token;
+        console.log(`Access token refreshed: ${twitchAccessToken}`);
+    } catch (error) {
+        console.error('An error occurred while refreshin access token:', error);
+    }
+};
+  
+refreshInterval = setInterval(refreshAccessToken, 1000 * 60 * 30);
 
 
 // setInterval(refreshAccessToken(twitchClientId, twitchClientSecret, twitchAccessToken, refreshToken), 1000 * 60 * 30);
@@ -48,28 +69,46 @@ async function notificationInterval() {
                 const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
                 const formattedDate = currentDate.toLocaleString('ja-JP', options).replace(/\//g, '-');
                 // console.log(`現在時刻 ${formattedDate}`);
-                
 
                 // 通知を送る
-                notifications.sendNotifications(twitchUsername, currentTitle);
+                notifications.sendNotifications(twitchUsername, currentTitle, formattedDate);
                 console.log('sent notifications');
             } catch (error) {
                 console.error('An error occurred while sending notifications:', error);
             }
-        }   
+        }
     } catch (error) {
         console.error('An error occurred:', error);
     }
 }
 
-setInterval(notificationInterval, 1000 * 15);
 
+setInterval(notificationInterval, 1000 * 10);
 
-// 日時を YY-MM-DD HH:MM の形式で取得
-// const currentDate = new Date();
-// const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-// const formattedDate = currentDate.toLocaleString('ja-JP', options).replace(/\//g, '-');
-// console.log(`現在時刻 ${formattedDate}`);
+// async function notificationTest() {
+//     try {
+//         // 戻り値を取得
+//         let isFirst = false;
+//         const currentTitle = 'Test まんぜうまんぜうまんぜう'
+//         if (isFirst == false) {
+//             try {
+//                 // 日時を YY-MM-DD HH:MM の形式で取得
+//                 const currentDate = new Date();
+//                 const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+//                 const formattedDate = currentDate.toLocaleString('ja-JP', options).replace(/\//g, '-');
+//                 // console.log(`現在時刻 ${formattedDate}`);
+                
 
-// testTitle = 'test Title';
-// notifications.sendNotifications(twitchUsername, testTitle, formattedDate);
+//                 // 通知を送る
+//                 notifications.sendNotifications(twitchUsername, currentTitle, formattedDate);
+//                 console.log('sent notifications');
+//             } catch (error) {
+//                 console.error('An error occurred while sending notifications:', error);
+//             }
+//         }   
+//     } catch (error) {
+//         console.error('An error occurred:', error);
+//     }
+// }
+
+// notificationTest();
