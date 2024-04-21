@@ -1,4 +1,9 @@
-require('dotenv').config();
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+import streamInfo from './utils/streamInfo';
+import notifications from './utils/notifications';
+
+dotenv.config();
 
 const twitchClientId = process.env.TWITCH_CLIENT_ID;
 const twitchUsername = 'oniyadayo';
@@ -6,22 +11,11 @@ let twitchAccessToken = process.env.TWITCH_ACCESS_TOKEN;
 const refreshToken = process.env.REFRESH_TOKEN;
 const twitchClientSecret = process.env.TWITCH_CLIENT_SECRET;
 
-
-// twitchのアクセストークンをリフッレシュ
-// async function refreshAccessToken() {
-//     const refreshTokenUrl = `https://id.twitch.tv/oauth2/token?grant_type=refresh_token&refresh_token=${refreshToken}&client_id=${twitchClientId}&client_secret=${twitchClientSecret}`;
-//     const response = await fetch(refreshTokenUrl, { method: 'POST'});
-//     const data = await response.json();
-//     twitchAccessToken = data.access_token;
-//     console.log(`Access token refreshed: ${twitchAccessToken}`);
-// }
 let refreshInterval;
 
 
 const refreshAccessToken = async () => {
     try{
-        const fetch = require('node-fetch');
-
         const refreshTokenUrl = `https://id.twitch.tv/oauth2/token?grant_type=refresh_token&refresh_token=${refreshToken}&client_id=${twitchClientId}&client_secret=${twitchClientSecret}`;
         const response = await fetch(refreshTokenUrl, { method: 'POST' });
         const data = await response.json();
@@ -39,10 +33,6 @@ refreshInterval = setInterval(refreshAccessToken, 1000 * 60 * 30);
 // 上の場合だとエラーになる
 
 // 配信情報を確認
-const streamInfo = require('./utils/streamInfo');
-const notifications = require('./utils/notifications');
-
-// console.log('checkTitleChange:', streamInfo.checkTitleChange);
 
 // getBroadcasterIdは非同期関数(async function)だから.thenで処理するか、awaitキーワードを使用できる関数内で実行する必要がある
 let twitchUserId;
@@ -89,7 +79,7 @@ setInterval(notificationInterval, 1000 * 10);
 //     try {
 //         // 戻り値を取得
 //         let isFirst = false;
-//         const currentTitle = 'Test まんぜうまんぜうまんぜう'
+//         const currentTitle = 'Test 悲報、おにや寝ぐせがひどい'
 //         if (isFirst == false) {
 //             try {
 //                 // 日時を YY-MM-DD HH:MM の形式で取得
