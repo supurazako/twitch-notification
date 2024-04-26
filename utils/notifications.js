@@ -1,8 +1,11 @@
-function sendNotifications(twitchUsername, currentTitle) {
-    sendDiscordNotification(twitchUsername, currentTitle);
-    postTweet(twitchUsername, currentTitle);
-    sendEmail(twitchUsername, currentTitle);
-}
+import https from 'https';
+import { TwitterApi } from 'twitter-api-v2';
+import nodemailer from 'nodemailer';
+import emails from './spreadsheet.js';
+
+const senderMailAddress = process.env.SENDER_MAIL_ADDRESS;
+const senderMailPass = process.env.SENDER_MAIL_PASS;
+const unsubscribeMailUrl = process.env.UNSUBSCRIBE_MAIL_URL;
 
 const getDate = () => {
     const currentDate = new Date();
@@ -11,8 +14,6 @@ const getDate = () => {
 }
 
 async function sendDiscordNotification(twitchUsername, currentTitle) {
-    const https = require('https');
-    
     // Discord Webhook URL
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   
@@ -46,10 +47,7 @@ async function sendDiscordNotification(twitchUsername, currentTitle) {
     req.end();
 }
 
-
 async function postTweet(twitchUsername, currentTitle) {
-    const { TwitterApi } = require('twitter-api-v2');
-
     const date = getDate();
 
     const client = new TwitterApi({
@@ -62,13 +60,6 @@ async function postTweet(twitchUsername, currentTitle) {
     const tweetContent = `${twitchUsername}さんがタイトルを「${currentTitle}」に変更しました(変更日時:${date})`;
     client.v2.tweet(tweetContent);
 }
-
-const nodemailer = require('nodemailer');
-const emails = require('./emails');
-
-const senderMailAddress = process.env.SENDER_MAIL_ADDRESS;
-const senderMailPass = process.env.SENDER_MAIL_PASS;
-const unsubscribeMailUrl = process.env.UNSUBSCRIBE_MAIL_URL;
 
 async function sendEmail(twitchUsername, currentTitle) {
     // トランスポーターを作成
@@ -108,8 +99,13 @@ async function sendEmail(twitchUsername, currentTitle) {
     }
 }
 
+function sendNotifications(twitchUsername, currentTitle) {
+    sendDiscordNotification(twitchUsername, currentTitle);
+    postTweet(twitchUsername, currentTitle);
+    sendEmail(twitchUsername, currentTitle);
+}
 
-module.exports = {
+export {
     sendNotifications,
     getDate
 }

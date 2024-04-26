@@ -1,7 +1,6 @@
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
 
-
-async function getBroadcasterId(twitchUsername, twitchAccessToken, twitchClientId) {
+export async function getBroadcasterId(twitchUsername, twitchAccessToken, twitchClientId) {
     const url = `https://api.twitch.tv/helix/users?login=${twitchUsername}`;
     const response = await fetch(url, {
         headers: {
@@ -12,7 +11,6 @@ async function getBroadcasterId(twitchUsername, twitchAccessToken, twitchClientI
     const json = await response.json();
     return json.data[0].id;
 }
-
 
 async function getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId) {
     const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${twitchUserId}`;
@@ -39,22 +37,18 @@ async function getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId) {
       .catch(error => console.error(error));
 }
 
-
 let previousTitle = 'none';
 let currentTitle = 'none';
 let isInited = false;
 let isTitleChanged;
 
-async function checkTitleChange(twitchUserId, twitchAccessToken, twitchClientId) {
+export async function checkTitleChange(twitchUserId, twitchAccessToken, twitchClientId) {
     try {
         let streamTitle = await getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId);
-        
-        // console.log(`streamTitle = ${streamTitle}`);
         
         if (streamTitle.length > 0) {
             currentTitle = streamTitle;
             if (currentTitle !== previousTitle) {
-                //if inited, send notifaction
                 if (isInited == true) {
                     isTitleChanged = true;
                     console.log(`changed to ${currentTitle}`);
@@ -80,10 +74,3 @@ async function checkTitleChange(twitchUserId, twitchAccessToken, twitchClientId)
         return {isTitleChanged, currentTitle};
     }
 }
-
-
-module.exports = {
-    getBroadcasterId,
-    getStreamTitle,
-    checkTitleChange
-};

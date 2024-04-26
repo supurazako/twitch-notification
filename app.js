@@ -72,7 +72,9 @@ async function notificationInterval() {
             if (currentHour == 8 && currentMinute == 0) {
                 const schedule = await streamInfo.getSchedule(twitchUserId, twitchAccessToken, twitchClientId);
                 // TODO: sendScheduleNotificationsを実装
-                notifications.sendScheduleNotifications(twitchUsername, schedule);
+                if (schedule !== null) {
+                    notifications.sendScheduleNotifications(twitchUsername, schedule);
+                }
                 isExecuted = true;
             }
         } else {
