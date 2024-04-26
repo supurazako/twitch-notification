@@ -1,16 +1,22 @@
-function sendNotifications(twitchUsername, currentTitle, date) {
-    sendDiscordNotification(twitchUsername, currentTitle, date);
-    postTweet(twitchUsername, currentTitle, date);
-    sendEmail(twitchUsername, currentTitle, date);
+function sendNotifications(twitchUsername, currentTitle) {
+    sendDiscordNotification(twitchUsername, currentTitle);
+    postTweet(twitchUsername, currentTitle);
+    sendEmail(twitchUsername, currentTitle);
 }
 
+const getDate = () => {
+    const currentDate = new Date();
+    const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+    return currentDate.toLocaleString('ja-JP', options).replace(/\//g, '-');
+}
 
-async function sendDiscordNotification(twitchUsername, currentTitle, date) {
+async function sendDiscordNotification(twitchUsername, currentTitle) {
     const https = require('https');
     
     // Discord Webhook URL
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
   
+    const date = getDate();
     // 送信するメッセージ
     const message = {
         content: `<@&1090963184271237251> ${twitchUsername}が「${currentTitle}」にタイトルを変更しました！\n変更日時:${date}\nhttps://twitch.tv/${twitchUsername}`
@@ -41,8 +47,10 @@ async function sendDiscordNotification(twitchUsername, currentTitle, date) {
 }
 
 
-async function postTweet(twitchUsername, currentTitle, date) {
+async function postTweet(twitchUsername, currentTitle) {
     const { TwitterApi } = require('twitter-api-v2');
+
+    const date = getDate();
 
     const client = new TwitterApi({
         appKey: process.env.CONSUMER_KEY,
@@ -62,7 +70,7 @@ const senderMailAddress = process.env.SENDER_MAIL_ADDRESS;
 const senderMailPass = process.env.SENDER_MAIL_PASS;
 const unsubscribeMailUrl = process.env.UNSUBSCRIBE_MAIL_URL;
 
-async function sendEmail(twitchUsername, currentTitle, date) {
+async function sendEmail(twitchUsername, currentTitle) {
     // トランスポーターを作成
     const transporter = nodemailer.createTransport({
         // 使用するメールサービス
@@ -76,6 +84,8 @@ async function sendEmail(twitchUsername, currentTitle, date) {
     const recipientMail = await emails.getAddresses();
 
     // console.log(`recipient mail ${recipientMail}`);
+
+    const date = getDate();
 
     // メールのオプションを設定
     const mailOptions = {
@@ -100,5 +110,6 @@ async function sendEmail(twitchUsername, currentTitle, date) {
 
 
 module.exports = {
-    sendNotifications
+    sendNotifications,
+    getDate
 }

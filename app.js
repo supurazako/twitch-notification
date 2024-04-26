@@ -47,6 +47,7 @@ streamInfo.getBroadcasterId(twitchUsername, twitchAccessToken, twitchClientId)
     });
 console.log(`twitchUserId: ${twitchUserId}`);
 
+let isExecuted = false;
 
 async function notificationInterval() {
     try {
@@ -54,18 +55,30 @@ async function notificationInterval() {
         const { isTitleChanged, currentTitle } = await streamInfo.checkTitleChange(twitchUserId, twitchAccessToken, twitchClientId);
         if (isTitleChanged == true) {
             try {
-                // 日時を YY-MM-DD HH:MM の形式で取得
-                const currentDate = new Date();
-                const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
-                const formattedDate = currentDate.toLocaleString('ja-JP', options).replace(/\//g, '-');
-                // console.log(`現在時刻 ${formattedDate}`);
-
                 // 通知を送る
-                notifications.sendNotifications(twitchUsername, currentTitle, formattedDate);
+                notifications.sendNotifications(twitchUsername, currentTitle);
                 console.log('sent notifications');
             } catch (error) {
                 console.error('An error occurred while sending notifications:', error);
             }
+        }
+        const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false};
+        const formatter = new Intl.DateTimeFormat('en-US', options);
+        const formattedDate = formatter.format(new Date());
+        const currentHour = formattedDate.getHours();
+        const currentMinute = formattedDate.getMinutes();
+        // 未実行で、8時ならば予定を取得して、通知を送る
+        if (isExecuted == false) {
+            if (currentHour == 8 && currentMinute == 0) {
+                const schedule = await streamInfo.getSchedule(twitchUserId, twitchAccessToken, twitchClientId);
+                // TODO: sendScheduleNotificationsを実装
+                notifications.sendScheduleNotifications(twitchUsername, schedule);
+                isExecuted = true;
+            }
+        } else {
+            // ８時５分になったら、実行フラグをfalseにする
+            if (currentHour == 8 && currentMinute == 5)
+                isExecuted = false;
         }
     } catch (error) {
         console.error('An error occurred:', error);
