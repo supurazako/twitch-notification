@@ -99,6 +99,16 @@ async function sendEmail(twitchUsername, currentTitle) {
     }
 }
 
+const sendScheduleNotifications = async (twitchUsername, schedule) => {
+    try {
+        // 通知を送る
+        sendNotifications(twitchUsername, currentTitle);
+        console.log('sent notifications');
+    } catch (error) {
+        console.error('An error occurred while sending notifications:', error);
+    }
+}
+
 function sendNotifications(twitchUsername, currentTitle) {
     sendDiscordNotification(twitchUsername, currentTitle);
     postTweet(twitchUsername, currentTitle);

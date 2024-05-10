@@ -70,10 +70,10 @@ async function notificationInterval() {
         // 未実行で、8時ならば予定を取得して、通知を送る
         if (isExecuted == false) {
             if (currentHour == 8 && currentMinute == 0) {
-                const schedule = await streamInfo.getSchedule(twitchUserId, twitchAccessToken, twitchClientId);
+                const schedule = await streamInfo.getSchedule(formattedDate);
                 // TODO: sendScheduleNotificationsを実装
                 if (schedule !== null) {
-                    notifications.sendScheduleNotifications(twitchUsername, schedule);
+                    notifications.sendScheduleNotifications(schedule);
                 }
                 isExecuted = true;
             }
