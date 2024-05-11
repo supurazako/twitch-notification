@@ -12,17 +12,16 @@ const getDate = () => {
     const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
     return currentDate.toLocaleString('ja-JP', options).replace(/\//g, '-');
 }
-
-async function sendDiscordNotification(twitchUsername, currentTitle) {
+const sendDiscordNotification = async (twitchUsername, currentTitle) => {
     // Discord Webhook URL
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  
+
     const date = getDate();
     // 送信するメッセージ
     const message = {
         content: `<@&1090963184271237251> ${twitchUsername}が「${currentTitle}」にタイトルを変更しました！\n変更日時:${date}\nhttps://twitch.tv/${twitchUsername}`
     }
-  
+
     // WebhookにPOSTリクエストを送信
     const options = {
         method: 'POST',
@@ -30,24 +29,24 @@ async function sendDiscordNotification(twitchUsername, currentTitle) {
             'Content-Type': 'application/json',
         },
     };
-  
+
     const req = https.request(webhookUrl, options, (res) => {
         console.log(`statusCode: ${res.statusCode}`);
-  
+
         res.on('data', (d) => {
-        process.stdout.write(d);
+            process.stdout.write(d);
         });
     });
-  
+
     req.on('error', (error) => {
         console.error(error);
     });
-  
+
     req.write(JSON.stringify(message));
     req.end();
 }
 
-async function postTweet(twitchUsername, currentTitle) {
+const postTweet = async (twitchUsername, currentTitle) => {
     const date = getDate();
 
     const client = new TwitterApi({
@@ -61,7 +60,7 @@ async function postTweet(twitchUsername, currentTitle) {
     client.v2.tweet(tweetContent);
 }
 
-async function sendEmail(twitchUsername, currentTitle) {
+const sendEmail = async (twitchUsername, currentTitle) => {
     // トランスポーターを作成
     const transporter = nodemailer.createTransport({
         // 使用するメールサービス
@@ -99,17 +98,41 @@ async function sendEmail(twitchUsername, currentTitle) {
     }
 }
 
-const sendScheduleNotifications = async (twitchUsername, schedule) => {
+const sendScheduleNotifications = async (schedule) => {
     try {
         // 通知を送る
-        sendNotifications(twitchUsername, currentTitle);
-        console.log('sent notifications');
+        sendNotifications
+        
     } catch (error) {
         console.error('An error occurred while sending notifications:', error);
     }
 }
 
-function sendNotifications(twitchUsername, currentTitle) {
+const sendTitleChangeNotifications = (twitchUsername, currentTitle) => {
+    // discord用のメッセージ
+    const discordContent = `<@&1090963184271237251> ${twitchUsername}が「${currentTitle}」にタイトルを変更しました！\n変更日時:${date}\nhttps://twitch.tv/${twitchUsername}`;
+
+    // ツイート用のメッセージ
+    const tweetContent = `${twitchUsername}さんがタイトルを「${currentTitle}」に変更しました(変更日時:${date})`;
+
+    // メール用のメッセージ
+    const mailContent = {
+        from: senderMailAddress, // 送信元のメールアドレス
+        to: recipientMail, // 送信先、受信者のメールアドレス
+        subject: `${twitchUsername}さんがタイトルを変更しました！`,
+        html: `<p style="font-family: Arial, sans-serif;">${twitchUsername}さんがタイトルを「<a href="https://twitch.tv/${twitchUsername}" style="color: blue;">${currentTitle}</a>」に変更しました！</p>
+        <p style="font-family: Arial, sans-serif;">変更日時:${date}</p>
+        <br>
+        <br>
+        <p style="font-family: Arial, sans-serif;">メール配信停止は<a href="${unsubscribeMailUrl}" style="color: blue;">こちら</a></p>`,
+    };
+    
+    sendDiscordNotification(twitchUsername, currentTitle);
+    postTweet(twitchUsername, currentTitle);
+    sendEmail(twitchUsername, currentTitle);
+}
+
+const sendNotifications = (twitchUsername, currentTitle) => {
     sendDiscordNotification(twitchUsername, currentTitle);
     postTweet(twitchUsername, currentTitle);
     sendEmail(twitchUsername, currentTitle);
