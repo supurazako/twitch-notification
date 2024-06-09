@@ -1,40 +1,87 @@
 import fetch from 'node-fetch';
 
-export async function getBroadcasterId(twitchUsername, twitchAccessToken, twitchClientId) {
-    const url = `https://api.twitch.tv/helix/users?login=${twitchUsername}`;
-    const response = await fetch(url, {
-        headers: {
-            'Client-ID': twitchClientId,
-            'Authorization': `Bearer ${twitchAccessToken}`
-        }
-    });
-    const json = await response.json();
-    return json.data[0].id;
-}
-
-async function getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId) {
+const getStreamTitle = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${twitchUserId}`;
-  
-    return fetch(url, {
-        headers: {
-            'Client-ID': twitchClientId,
-            'Authorization': `Bearer ${twitchAccessToken}`,
-        },
-    })
-        .then(response => {
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Client-ID': twitchClientId,
+                'Authorization': `Bearer ${twitchAccessToken}`,
+            },
+        });
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        return response.json();
-    })
-        .then(data => {
+
+        const data = await response.json();
+
         if (data.data.length === 0) {
             throw new Error('Channel not found');
         }
+
         const streamTitle = data.data[0].title;
         return streamTitle;
-    })
-      .catch(error => console.error(error));
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+};
+
+const getStreamStatus = async (twitchUserId, twitchAccessToken, twitchClientId) => {
+    const url = `https://api.twitch.tv/helix/streams?user_id=${twitchUserId}`;
+
+    try {
+        const response = await fetch(url, {
+            headers: {
+                'Client-ID': twitchClientId,
+                'Authorization': `Bearer ${twitchAccessToken}`,
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.data.length === 0) {
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+let previousStatus = false;
+let currentStatus = false;
+let isStreamStarted;
+
+const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
+    try {
+        // 配信がオンラインかどうかを確認
+        currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
+
+        // 前回がfalseで今回がtrueの場合はtrueを返す。それ以外はfalseを返す
+        if (currentStatus === true && previousStatus === false) {
+            isStreamStarted = true;
+            console.log('Stream started!');
+        } else {
+            isStreamStarted = false;
+            console.log(`Stream not started. currentStatus: ${currentStatus}`);
+        }
+
+        previousStatus = currentStatus;
+        return isStreamStarted;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+
 }
 
 let previousTitle = 'none';
@@ -42,35 +89,35 @@ let currentTitle = 'none';
 let isInited = false;
 let isTitleChanged;
 
-export async function checkTitleChange(twitchUserId, twitchAccessToken, twitchClientId) {
+export const checkTitleChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     try {
-        let streamTitle = await getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId);
-        
+        const streamTitle = await getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId);
+
         if (streamTitle.length > 0) {
             currentTitle = streamTitle;
+
             if (currentTitle !== previousTitle) {
-                if (isInited == true) {
+                if (isInited === true) {
                     isTitleChanged = true;
                     console.log(`changed to ${currentTitle}`);
                 } else {
                     isInited = true;
                     isTitleChanged = false;
-                    console.log('Initialization is complete.')
+                    console.log('Initialization is complete.');
                 }
             } else {
                 isTitleChanged = false;
                 console.log(`nochange, current title: ${currentTitle}`);
             }
-        }
-        else {
+        } else {
             isTitleChanged = false;
             console.log(`no change, current title: ${currentTitle}`);
         }
 
         previousTitle = currentTitle;
-        return {isTitleChanged, currentTitle};
+        return { isTitleChanged, currentTitle };
     } catch (error) {
         console.error(error);
-        return {isTitleChanged, currentTitle};
+        return { isTitleChanged, currentTitle };
     }
-}
+};

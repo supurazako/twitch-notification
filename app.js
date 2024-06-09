@@ -30,19 +30,15 @@ const getTwitchAccessToken = async () => {
     }
 }
 
-// 配信情報を確認
-
 // twitchAccessTokenをグローバル変数として定義
 let twitchAccessToken;
 
 // アクセストークンを取得
 getTwitchAccessToken();
 
-let isExecuted = false;
-
 const notificationInterval = async () => {
     try {
-        // 戻り値を取得
+        // タイトルの変更を確認
         const { isTitleChanged, currentTitle } = await streamInfo.checkTitleChange(twitchUserId, twitchAccessToken, twitchClientId);
         if (isTitleChanged == true) {
             try {
@@ -52,26 +48,6 @@ const notificationInterval = async () => {
             } catch (error) {
                 console.error('An error occurred while sending notifications:', error);
             }
-        }
-        const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false};
-        const formatter = new Intl.DateTimeFormat('en-US', options);
-        const formattedDate = formatter.format(new Date());
-        const currentHour = formattedDate.getHours();
-        const currentMinute = formattedDate.getMinutes();
-        // 未実行で、8時ならば予定を取得して、通知を送る
-        if (isExecuted == false) {
-            if (currentHour == 8 && currentMinute == 0) {
-                const schedule = await streamInfo.getSchedule(formattedDate);
-                // TODO: sendScheduleNotificationsを実装
-                if (schedule !== null) {
-                    notifications.sendScheduleNotifications(schedule);
-                }
-                isExecuted = true;
-            }
-        } else {
-            // ８時５分になったら、実行フラグをfalseにする
-            if (currentHour == 8 && currentMinute == 5)
-                isExecuted = false;
         }
     } catch (error) {
         console.error('An error occurred:', error);
