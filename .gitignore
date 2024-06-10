@@ -1,2 +1,4 @@
 ## DS_Store を除外する
 *.DS_Store
+## node_modules 内のファイルを除外する
+node_modules/
