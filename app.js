@@ -36,8 +36,17 @@ let twitchAccessToken;
 // アクセストークンを取得
 getTwitchAccessToken();
 
+// TODO: 配信が開始されたら通知を送る
+
 const notificationInterval = async () => {
     try {
+        // 配信状態を確認
+        const isStreamStarted = await streamInfo.checkStreamStatusChange(twitchUserId, twitchAccessToken, twitchClientId);
+        if (isStreamStarted == true) {
+            // 配信が開始されたら通知を送る
+            notifications.sendNotifications(twitchUsername, '配信が開始されました');
+            console.log('sent notifications');
+        }
         // タイトルの変更を確認
         const { isTitleChanged, currentTitle } = await streamInfo.checkTitleChange(twitchUserId, twitchAccessToken, twitchClientId);
         if (isTitleChanged == true) {
@@ -54,5 +63,13 @@ const notificationInterval = async () => {
     }
 }
 
+const testNotification = async () => {
+    try {
+        notifications.testSendTitleChangeNotifications(twitchUsername, 'test title');
+    } catch (error) {
+        console.error('An error occurred while sending notifications:', error);
+    }
+}
 
-setInterval(notificationInterval, 1000 * 10);
+testNotification();
+// setInterval(notificationInterval, 1000 * 10);

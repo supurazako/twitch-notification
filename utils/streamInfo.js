@@ -57,33 +57,6 @@ const getStreamStatus = async (twitchUserId, twitchAccessToken, twitchClientId) 
     }
 }
 
-let previousStatus = false;
-let currentStatus = false;
-let isStreamStarted;
-
-const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
-    try {
-        // 配信がオンラインかどうかを確認
-        currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
-
-        // 前回がfalseで今回がtrueの場合はtrueを返す。それ以外はfalseを返す
-        if (currentStatus === true && previousStatus === false) {
-            isStreamStarted = true;
-            console.log('Stream started!');
-        } else {
-            isStreamStarted = false;
-            console.log(`Stream not started. currentStatus: ${currentStatus}`);
-        }
-
-        previousStatus = currentStatus;
-        return isStreamStarted;
-    } catch (error) {
-        console.error(error);
-        return false;
-    }
-
-}
-
 let previousTitle = 'none';
 let currentTitle = 'none';
 let isInited = false;
@@ -121,3 +94,30 @@ export const checkTitleChange = async (twitchUserId, twitchAccessToken, twitchCl
         return { isTitleChanged, currentTitle };
     }
 };
+
+let previousStatus = false;
+let currentStatus = false;
+let isStreamStarted;
+
+export const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
+    try {
+        // 配信がオンラインかどうかを確認
+        currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
+
+        // 前回がfalseで今回がtrueの場合はtrueを返す。それ以外はfalseを返す
+        if (currentStatus === true && previousStatus === false) {
+            isStreamStarted = true;
+            console.log('Stream started!');
+        } else {
+            isStreamStarted = false;
+            console.log(`Stream not started. currentStatus: ${currentStatus}`);
+        }
+
+        previousStatus = currentStatus;
+        return isStreamStarted;
+    } catch (error) {
+        console.error(error);
+        return false;
+    }
+
+}
