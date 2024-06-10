@@ -12,7 +12,7 @@ const getDate = () => {
     const options = { timeZone: 'Asia/Tokyo', year: '2-digit', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
     return currentDate.toLocaleString('ja-JP', options).replace(/\//g, '-');
 }
-const sendDiscordNotification = async (twitchUsername, currentTitle, content) => {
+const sendDiscordNotification = async (content) => {
     // Discord Webhook URL
     const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
     // 送信するメッセージ
@@ -44,7 +44,7 @@ const sendDiscordNotification = async (twitchUsername, currentTitle, content) =>
     req.end();
 }
 
-const postTweet = async (twitchUsername, currentTitle, content) => {
+const postTweet = async (content) => {
     const client = new TwitterApi({
         appKey: process.env.CONSUMER_KEY,
         appSecret: process.env.CONSUMER_SECRET,
@@ -56,7 +56,7 @@ const postTweet = async (twitchUsername, currentTitle, content) => {
     client.v2.tweet(tweetContent);
 }
 
-const sendEmail = async (twitchUsername, currentTitle, content) => {
+const sendEmail = async (content) => {
     // トランスポーターを作成
     const transporter = nodemailer.createTransport({
         // 使用するメールサービス
@@ -66,9 +66,6 @@ const sendEmail = async (twitchUsername, currentTitle, content) => {
             pass: senderMailPass, // 送信元メールのパスワード
         },
     });
-    // 送信先のアドレスを取得
-    const recipientMail = await getSpreadsheetData();
-
     // console.log(`recipient mail ${recipientMail}`);
 
     const date = getDate();
@@ -96,7 +93,7 @@ const sendScheduleNotifications = async (schedule) => {
     }
 }
 
-// export const sendTitleChangeNotifications = (twitchUsername, currentTitle) => {
+// const sendTitleChangeNotifications = (twitchUsername, currentTitle) => {
 //     // discord用のメッセージ
 //     const discordContent = `<@&1090963184271237251> ${twitchUsername}が「${currentTitle}」にタイトルを変更しました！\n変更日時:${date}\nhttps://twitch.tv/${twitchUsername}`;
 
@@ -120,7 +117,32 @@ const sendScheduleNotifications = async (schedule) => {
 //     sendEmail(twitchUsername, currentTitle, mailContent);
 // }
 
-export const testSendTitleChangeNotifications = (twitchUsername, currentTitle) => {
+// TODO: 配信開始通知を追加
+const sendStreamStartNotifications = (twitchUsername, currentTitle) => {
+    // discord用のメッセージ
+    const discordContent = `<@&1090963184271237251> ${twitchUsername}さんが配信開始しました！\n変更日時:${date}\nhttps://twitch.tv/${twitchUsername}`;
+
+    // ツイート用のメッセージ
+    const tweetContent = `${twitchUsername}さんが配信開始しました！(変更日時:${date})`;
+
+    // メール用のメッセージ
+    const mailContent = {
+        from: senderMailAddress, // 送信元のメールアドレス
+        bcc: recipientMail, // 送信先、受信者のメールアドレス
+        subject: `${twitchUsername}さんが配信開始しました！`,
+        html: `<p style="font-family: Arial, sans-serif;">${twitchUsername}さんがタイトルを「<a href="https://twitch.tv/${twitchUsername}" style="color: blue;">${currentTitle}</a>」に変更しました！</p>
+        <p style="font-family: Arial, sans-serif;">変更日時:${date}</p>
+        <br>
+        <br>
+        <p style="font-family: Arial, sans-serif;">メール配信停止は<a href="${unsubscribeMailUrl}" style="color: blue;">こちら</a></p>`,
+    };
+    
+    sendDiscordNotification(discordContent);
+    postTweet(tweetContent);
+    sendEmail(mailContent);
+}
+
+const testSendTitleChangeNotifications = async (twitchUsername, currentTitle) => {
     const date = getDate();
     // discord用のメッセージ
     const discordContent = `<@&1090963184271237251> ${twitchUsername}が「${currentTitle}」にタイトルを変更しました！\n変更日時:${date}\nhttps://twitch.tv/${twitchUsername}`;
@@ -129,6 +151,12 @@ export const testSendTitleChangeNotifications = (twitchUsername, currentTitle) =
     const tweetContent = `${twitchUsername}さんがタイトルを「${currentTitle}」に変更しました(変更日時:${date})`;
 
     // メール用のメッセージ
+    // 送信先のアドレスを取得
+    const spreadsheetRange = `addresses!B2:B`
+    let recipientMail = await getSpreadsheetData(spreadsheetRange);
+    console.log(`recipientMail: ${recipientMail}`);
+    recipientMail = 'redhot30atama@gmail.com';
+
     const mailContent = {
         from: senderMailAddress, // 送信元のメールアドレス
         bcc: recipientMail, // 送信先、受信者のメールアドレス
@@ -145,7 +173,7 @@ export const testSendTitleChangeNotifications = (twitchUsername, currentTitle) =
     testSendEmail(twitchUsername, currentTitle, mailContent);
 }
 
-const testSendEmail = async (twitchUsername, currentTitle, content) => {
+const testSendEmail = async (content) => {
     // トランスポーターを作成
     const transporter = nodemailer.createTransport({
         // 使用するメールサービス
@@ -155,14 +183,6 @@ const testSendEmail = async (twitchUsername, currentTitle, content) => {
             pass: senderMailPass, // 送信元メールのパスワード
         },
     });
-    // 送信先のアドレスを取得
-    let recipientMail = await getSpreadsheetData();
-
-    console.log(`recipient mail: ${recipientMail}`);
-
-    recipientMail = 'redhot30atama@gmail.com';
-
-    const date = getDate();
 
     // メールのオプションを設定
     const mailOptions = content;
@@ -176,10 +196,7 @@ const testSendEmail = async (twitchUsername, currentTitle, content) => {
     }
 }
 
-// TODO: 通知をタイトル変更と配信開始に分ける
-
-export const sendStreamStartNotifications = (twitchUsername, currentTitle) => {
-    sendDiscordNotification(twitchUsername, currentTitle);
-    postTweet(twitchUsername, currentTitle);
-    sendEmail(twitchUsername, currentTitle);
+export default {
+    sendStreamStartNotifications,
+    testSendTitleChangeNotifications
 }

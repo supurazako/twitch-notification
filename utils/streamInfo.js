@@ -99,7 +99,7 @@ let previousStatus = false;
 let currentStatus = false;
 let isStreamStarted;
 
-export const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
+const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     try {
         // 配信がオンラインかどうかを確認
         currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
@@ -120,4 +120,9 @@ export const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, t
         return false;
     }
 
+}
+
+export default {
+    checkTitleChange,
+    checkStreamStatusChange,
 }
