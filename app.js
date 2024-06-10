@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 import fetch from 'node-fetch';
-import streamInfo from './utils/streamInfo';
-import notifications from './utils/notifications';
+import streamInfo from './utils/streamInfo.js';
+import notifications from './utils/notifications.js';
 
 dotenv.config();
 

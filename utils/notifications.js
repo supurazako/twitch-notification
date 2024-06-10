@@ -1,7 +1,7 @@
 import https from 'https';
 import { TwitterApi } from 'twitter-api-v2';
 import nodemailer from 'nodemailer';
-import spreadsheet from './spreadsheet.js';
+import { getSpreadsheetData } from './spreadsheet.js';
 
 const senderMailAddress = process.env.SENDER_MAIL_ADDRESS;
 const senderMailPass = process.env.SENDER_MAIL_PASS;
@@ -67,7 +67,7 @@ const sendEmail = async (twitchUsername, currentTitle, content) => {
         },
     });
     // 送信先のアドレスを取得
-    const recipientMail = await spreadsheet.getAddresses();
+    const recipientMail = await getSpreadsheetData();
 
     // console.log(`recipient mail ${recipientMail}`);
 
@@ -156,7 +156,7 @@ const testSendEmail = async (twitchUsername, currentTitle, content) => {
         },
     });
     // 送信先のアドレスを取得
-    let recipientMail = await spreadsheet.getAddresses();
+    let recipientMail = await getSpreadsheetData();
 
     console.log(`recipient mail: ${recipientMail}`);
 
