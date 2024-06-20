@@ -2,4 +2,5 @@
 *.DS_Store
 ## node_modules 内のファイルを除外する
 node_modules/
+package-lock.json
 .env

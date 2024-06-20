@@ -156,6 +156,7 @@ const testSendTitleChangeNotifications = async (twitchUsername, currentTitle) =>
     let recipientMail = await getSpreadsheetData(spreadsheetRange);
     console.log(`recipientMail: ${recipientMail}`);
     recipientMail = 'redhot30atama@gmail.com';
+    console.log(`recipientMail2: ${recipientMail}`)
 
     const mailContent = {
         from: senderMailAddress, // 送信元のメールアドレス
@@ -170,7 +171,7 @@ const testSendTitleChangeNotifications = async (twitchUsername, currentTitle) =>
     
     // sendDiscordNotification(twitchUsername, currentTitle, discordContent);
     // postTweet(twitchUsername, currentTitle, tweetContent);
-    testSendEmail(twitchUsername, currentTitle, mailContent);
+    testSendEmail(mailContent);
 }
 
 const testSendEmail = async (content) => {
@@ -186,6 +187,7 @@ const testSendEmail = async (content) => {
 
     // メールのオプションを設定
     const mailOptions = content;
+    console.log(`mailOptions: ${mailOptions}`)
 
     // メールを送信
     try {
