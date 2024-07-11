@@ -4,3 +4,5 @@
 node_modules/
 package-lock.json
 .env
+## launch.json の設定を除外する
+launch.json
