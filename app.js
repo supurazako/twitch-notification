@@ -64,7 +64,7 @@ const notificationInterval = async () => {
     }
 }
 
-const testNotification = async () => {
+const testMain = async () => {
     try {
         // notifications.testSendTitleChangeNotifications(twitchUsername, 'test title');
         await getTwitchAccessTokenFromSpreadsheet();
@@ -93,6 +93,17 @@ const getTwitchAccessTokenFromSpreadsheet = async () => {
     const expiresIn = response[1];
     console.log(`accessToken: ${accessToken}, expiresIn: ${expiresIn}`)
 
+    // expiresInの型を確認
+    console.log(`expiresIn type: ${typeof expiresIn}`);
+
+    // 有効期限を確認
+    const currentTime = new Date();
+    const expirationTime = new Date(expiresIn);
+    console.log(`currentTime: ${currentTime}, expirationTime: ${expirationTime}`);
+    if (currentTime > expirationTime) {
+        console.log('Access token has expired');
+        return;
+    }
 }
 
-testNotification();
+testMain();
