@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import streamInfo from './utils/streamInfo.js';
+import { checkTitleChange, checkStreamStatusChange } from './utils/streamInfo.js';
 import notifications from './utils/notifications.js';
 import { getTwitchAccessTokenFromSpreadsheet } from './utils/tokens.js';
 
@@ -39,15 +39,30 @@ const notificationInterval = async () => {
 const testMain = async () => {
     try {
         // notifications.testSendTitleChangeNotifications(twitchUsername, 'test title');
-        await getTwitchAccessTokenFromSpreadsheet();
+        // accessTokenの取得
+        const accessToken = await getTwitchAccessTokenFromSpreadsheet();
+        
+        // 配信状態の確認
+        const isStreamStarted = await checkStreamStatusChange(twitchUserId, accessToken, twitchClientId);
+
+        // タイトルの変更を確認
+        // ここにコードを追加
+
+        // Lambda用の退出処理
+        // ここにコードを追加
+
         process.exit(0);
     } catch (error) {
-        console.error('An error occurred while sending notifications:', error);
+        console.error('An error occurred while main function:', error);
     }
 }
 
 // 新しい実行フロー
-// 1. アクセストークンをGSから取得
-// 2. 通知の条件分岐を行う
+// 1. アクセストークンをGSから取得 ←CLEAR！
+// 2. 配信状態を確認
+// 3. 配信が開始されたら通知を送る
+// 4. タイトルの変更を確認
+// 5. タイトルが変更されたら通知を送る
+// 6. AWS Lambdaに実行できるようにする
 
 testMain();

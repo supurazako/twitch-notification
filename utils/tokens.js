@@ -5,8 +5,10 @@ import { getSpreadsheetData, updateSpreadsheetData } from './spreadsheet.js';
 const twitchClientId = process.env.TWITCH_CLIENT_ID;
 const twitchClientSecret = process.env.TWITCH_CLIENT_SECRET;
 
+// アクセストークンをAPIを使用して取得
 const getTwitchAccessToken = async () => {
     try {
+        // Twitch APIにPOSTリクエストを送信
         const response = await fetch('https://id.twitch.tv/oauth2/token', {
             method: 'POST',
             body: new URLSearchParams({
@@ -17,16 +19,17 @@ const getTwitchAccessToken = async () => {
         });
 
         const data = await response.json();
+        // アクセストークンと有効期限を返す
         return {
             accessToken: data.access_token,
             expiresIn: new Date(Date.now() + data.expires_in * 1000)
         }
     } catch (error) {
-        console.error('Error during getiing access token:', error.message);
+        console.error('An error occurred while getting Access token:', error.message);
     }
 }
 
-// アクセストークンを取得
+// アクセストークンをスプレッドシートから取得
 export const getTwitchAccessTokenFromSpreadsheet = async () => {
     // スプレッドシートからアクセストークンを取得
     // 格納場所は暫定のため、更新が必要 :TODO
@@ -34,39 +37,37 @@ export const getTwitchAccessTokenFromSpreadsheet = async () => {
     const response = await getSpreadsheetData(spreadsheetRange);
     console.log(`response: ${response}`);
 
-    // 取得したデータを格納
+    // 取得したデータを変数に格納
     const accessToken = response[0];
     const expiresIn = response[1];
-    console.log(`accessToken: ${accessToken}, expiresIn: ${expiresIn}`)
-
     // 有効期限を確認
     const currentTime = new Date();
     const expirationTime = new Date(expiresIn);
-    console.log(`currentTime: ${currentTime}, expirationTime: ${expirationTime}`);
-    if (currentTime < expirationTime) {
+
+    // 有効期限が切れている場合、アクセストークンを再取得
+    if (currentTime > expirationTime) {
         console.log('Access token has expired');
 
         // アクセストークンを再取得
         const { accessToken, expiresIn } = await getTwitchAccessToken();
-        console.log(`new accessToken: ${accessToken}, new expiresIn: ${expiresIn}`);
-
         // アクセストークンを暗号化
         const encryptedAccessToken = await encrypto(accessToken);
-        console.log(`encryptedAccessToken: ${encryptedAccessToken}`);
-
-        // 復号を確認してみる
-        const decryptedAccessToken = await decrypto(encryptedAccessToken);
-        console.log(`decryptedAccessToken: ${decryptedAccessToken}`);
-
         // スプレッドシートに新しいアクセストークン及び有効期限を格納
         // 格納場所は暫定のため、更新が必要 :TODO
         const range = 'tokens!A2:B2';
         const values = [encryptedAccessToken, expiresIn];
         await updateSpreadsheetData(range, values);
-        return;
+
+        // 暗号化されていないアクセストークンを返す
+        return accessToken;
 
     } else {
+        // 有効期限が切れていない場合、アクセストークンを復号する
         console.log('Access token is valid');
+
+        const decryptedAccessToken = await decrypto(accessToken);
+        // console.log(`decryptedAccessToken: ${decryptedAccessToken}`);
+        return decryptedAccessToken;
     }
 }
 
