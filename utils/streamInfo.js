@@ -24,7 +24,7 @@ const getStreamTitle = async (twitchUserId, twitchAccessToken, twitchClientId) =
         const streamTitle = data.data[0].title;
         return streamTitle;
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while getting stream title:', error);
         throw error;
     }
 };
@@ -52,7 +52,7 @@ const getStreamStatus = async (twitchUserId, twitchAccessToken, twitchClientId) 
 
         return true;
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while getting stream status:', error);
         throw error;
     }
 }
@@ -90,7 +90,7 @@ export const checkTitleChange = async (twitchUserId, twitchAccessToken, twitchCl
         previousTitle = currentTitle;
         return { isTitleChanged, currentTitle };
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while checking title change:', error);
         return { isTitleChanged, currentTitle };
     }
 };
@@ -99,7 +99,7 @@ let previousStatus = false;
 let currentStatus = false;
 let isStreamStarted;
 
-const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
+export const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     try {
         // 配信がオンラインかどうかを確認
         currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
@@ -116,13 +116,7 @@ const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchCl
         previousStatus = currentStatus;
         return isStreamStarted;
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while checking stream status change:', error);
         return false;
     }
-
-}
-
-export default {
-    checkTitleChange,
-    checkStreamStatusChange,
 }
