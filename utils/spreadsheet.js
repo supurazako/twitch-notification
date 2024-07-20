@@ -55,7 +55,6 @@ export const updateSpreadsheetData = async (range, values) => {
         });
         
         console.log('Data updated successfully');
-        console.log(response);
         return;
     } catch (err) {
         console.error('Failed to update spreadsheet data: ', err);
