@@ -44,9 +44,23 @@ const testMain = async () => {
         
         // 配信状態の確認
         const isStreamStarted = await checkStreamStatusChange(twitchUserId, accessToken, twitchClientId);
+        console.log(`isStreamStarted: ${isStreamStarted}`);
+        // trueならば、配信が開始されたことを通知
+        if (isStreamStarted) {
+            // TODO: 名前つきインポート及びエクスポートに変更
+            // notifications.sendNotifications(twitchUsername);
+            console.log('sent notifications');
+        }
 
         // タイトルの変更を確認
-        // ここにコードを追加
+        const { isTitleChanged, currentTitle } = await checkTitleChange(twitchUserId, accessToken, twitchClientId);
+        console.log(`isTitleChanged: ${isTitleChanged}`);
+        // trueならば、タイトルが変更されたことを通知
+        if (isTitleChanged) {
+            // TODO: 名前つきインポート及びエクスポートに変更
+            // notifications.sendNotifications(twitchUsername, currentTitle);
+            console.log('sent notifications');
+        }
 
         // Lambda用の退出処理
         // ここにコードを追加
