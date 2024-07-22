@@ -1,41 +1,13 @@
 import dotenv from 'dotenv';
-import fetch from 'node-fetch';
-import streamInfo from './utils/streamInfo.js';
+import { checkTitleChange, checkStreamStatusChange } from './utils/streamInfo.js';
 import notifications from './utils/notifications.js';
-import { getSpreadsheetData } from './utils/spreadsheet.js';
+import { getTwitchAccessTokenFromSpreadsheet } from './utils/tokens.js';
 
 dotenv.config();
 
 const twitchClientId = process.env.TWITCH_CLIENT_ID;
 const twitchUserId = '605425209';
 const twitchUsername = 'oniyadayo';
-const twitchClientSecret = process.env.TWITCH_CLIENT_SECRET;
-
-const getTwitchAccessToken = async () => {
-    try {
-        const response = await fetch('https://id.twitch.tv/oauth2/token', {
-            method: 'POST',
-            body: new URLSearchParams({
-                client_id: twitchClientId,
-                client_secret: twitchClientSecret,
-                grant_type: 'client_credentials'
-            })
-        });
-
-        const data = await response.json();
-        twitchAccessToken = data.access_token;
-        setTimeout(getTwitchAccessToken, (24 * 60 * 60 * 1000));
-        
-    } catch (error) {
-        console.error('Error during getiing access token:', error.message);
-    }
-}
-
-// twitchAccessTokenをグローバル変数として定義
-let twitchAccessToken;
-
-// アクセストークンを取得
-getTwitchAccessToken();
 
 // TODO: 配信が開始されたら通知を送る
 
@@ -67,43 +39,44 @@ const notificationInterval = async () => {
 const testMain = async () => {
     try {
         // notifications.testSendTitleChangeNotifications(twitchUsername, 'test title');
-        await getTwitchAccessTokenFromSpreadsheet();
+        // accessTokenの取得
+        const accessToken = await getTwitchAccessTokenFromSpreadsheet();
+        
+        // 配信状態の確認
+        const isStreamStarted = await checkStreamStatusChange(twitchUserId, accessToken, twitchClientId);
+        console.log(`isStreamStarted: ${isStreamStarted}`);
+        // trueならば、配信が開始されたことを通知
+        if (isStreamStarted) {
+            // TODO: 名前つきインポート及びエクスポートに変更
+            // notifications.sendNotifications(twitchUsername);
+            console.log('sent notifications');
+        }
+
+        // タイトルの変更を確認
+        const { isTitleChanged, currentTitle } = await checkTitleChange(twitchUserId, accessToken, twitchClientId);
+        console.log(`isTitleChanged: ${isTitleChanged}`);
+        // trueならば、タイトルが変更されたことを通知
+        if (isTitleChanged) {
+            // TODO: 名前つきインポート及びエクスポートに変更
+            // notifications.sendNotifications(twitchUsername, currentTitle);
+            console.log('sent notifications');
+        }
+
+        // Lambda用の退出処理
+        // ここにコードを追加
+
         process.exit(0);
     } catch (error) {
-        console.error('An error occurred while sending notifications:', error);
+        console.error('An error occurred while main function:', error);
     }
 }
-
-// setInterval(notificationInterval, 1000 * 10);
 
 // 新しい実行フロー
-// 1. アクセストークンをGSから取得
-// 2. 通知の条件分岐を行う
-
-// アクセストークンを取得
-const getTwitchAccessTokenFromSpreadsheet = async () => {
-    // スプレッドシートからアクセストークンを取得
-    // 格納場所は暫定のため、更新が必要 :TODO
-    const spreadsheetRange = 'tokens!A2:B2';
-    const response = await getSpreadsheetData(spreadsheetRange);
-    console.log(`response: ${response}`);
-
-    // 取得したデータを格納
-    const accessToken = response[0];
-    const expiresIn = response[1];
-    console.log(`accessToken: ${accessToken}, expiresIn: ${expiresIn}`)
-
-    // expiresInの型を確認
-    console.log(`expiresIn type: ${typeof expiresIn}`);
-
-    // 有効期限を確認
-    const currentTime = new Date();
-    const expirationTime = new Date(expiresIn);
-    console.log(`currentTime: ${currentTime}, expirationTime: ${expirationTime}`);
-    if (currentTime > expirationTime) {
-        console.log('Access token has expired');
-        return;
-    }
-}
+// 1. アクセストークンをGSから取得 ←CLEAR！
+// 2. 配信状態を確認
+// 3. 配信が開始されたら通知を送る
+// 4. タイトルの変更を確認
+// 5. タイトルが変更されたら通知を送る
+// 6. AWS Lambdaに実行できるようにする
 
 testMain();

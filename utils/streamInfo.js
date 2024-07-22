@@ -1,4 +1,5 @@
 import fetch from 'node-fetch';
+import { getSpreadsheetData, updateSpreadsheetData } from './spreadsheet.js';
 
 const getStreamTitle = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     const url = `https://api.twitch.tv/helix/channels?broadcaster_id=${twitchUserId}`;
@@ -24,7 +25,7 @@ const getStreamTitle = async (twitchUserId, twitchAccessToken, twitchClientId) =
         const streamTitle = data.data[0].title;
         return streamTitle;
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while getting stream title:', error);
         throw error;
     }
 };
@@ -52,57 +53,57 @@ const getStreamStatus = async (twitchUserId, twitchAccessToken, twitchClientId) 
 
         return true;
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while getting stream status:', error);
         throw error;
     }
 }
 
-let previousTitle = 'none';
-let currentTitle = 'none';
-let isInited = false;
-let isTitleChanged;
-
 export const checkTitleChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     try {
-        const streamTitle = await getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId);
+        // タイトルを取得
+        // const currentTitle = await getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId);
+        // const previousTitle = await getSpreadsheetData('utils!B1');
 
-        if (streamTitle.length > 0) {
-            currentTitle = streamTitle;
+        // テスト用
+        const currentTitle = 'test title';
+        const previousTitle = 'test title2';
 
+        let isTitleChanged;
+
+        if (previousTitle !== null) {
             if (currentTitle !== previousTitle) {
-                if (isInited === true) {
-                    isTitleChanged = true;
-                    console.log(`changed to ${currentTitle}`);
-                } else {
-                    isInited = true;
-                    isTitleChanged = false;
-                    console.log('Initialization is complete.');
-                }
+                isTitleChanged = true;
+                console.log(`changed to ${currentTitle}`);
             } else {
                 isTitleChanged = false;
                 console.log(`nochange, current title: ${currentTitle}`);
             }
         } else {
             isTitleChanged = false;
-            console.log(`no change, current title: ${currentTitle}`);
+            console.log('title is not set');
         }
 
-        previousTitle = currentTitle;
         return { isTitleChanged, currentTitle };
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while checking title change:', error);
         return { isTitleChanged, currentTitle };
     }
 };
 
-let previousStatus = false;
-let currentStatus = false;
-let isStreamStarted;
 
-const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
+export const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     try {
+        // isStreamStartedを初期化
+        let isStreamStarted;
+
         // 配信がオンラインかどうかを確認
-        currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
+        // const currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
+        
+        // テスト用
+        const currentStatus = true;
+
+        // 前回の状態を取得
+        const previousStatus = await getSpreadsheetData('utils!B2');
 
         // 前回がfalseで今回がtrueの場合はtrueを返す。それ以外はfalseを返す
         if (currentStatus === true && previousStatus === false) {
@@ -113,16 +114,11 @@ const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, twitchCl
             console.log(`Stream not started. currentStatus: ${currentStatus}`);
         }
 
-        previousStatus = currentStatus;
+        // previousStatusを更新
+        await updateSpreadsheetData('utils!B2', [currentStatus]);
         return isStreamStarted;
     } catch (error) {
-        console.error(error);
+        console.error('An error occurred while checking stream status change:', error);
         return false;
     }
-
-}
-
-export default {
-    checkTitleChange,
-    checkStreamStatusChange,
 }

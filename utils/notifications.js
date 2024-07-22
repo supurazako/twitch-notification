@@ -118,9 +118,9 @@ const sendScheduleNotifications = async (schedule) => {
 // }
 
 // TODO: 配信開始通知を追加
-const sendStreamStartNotifications = (twitchUsername, currentTitle) => {
+const sendStreamStartNotifications = (twitchUsername) => {
     // discord用のメッセージ
-    const discordContent = `<@&1090963184271237251> ${twitchUsername}さんが配信開始しました！\n変更日時:${date}\nhttps://twitch.tv/${twitchUsername}`;
+    const discordContent = `<@&1090963184271237251>\n 【配信開始】${twitchUsername}さんが配信開始しました！\n日時:${date}\nhttps://twitch.tv/${twitchUsername}`;
 
     // ツイート用のメッセージ
     const tweetContent = `${twitchUsername}さんが配信開始しました！(変更日時:${date})`;
