@@ -60,6 +60,7 @@ const getStreamStatus = async (twitchUserId, twitchAccessToken, twitchClientId) 
 
 export const checkTitleChange = async (twitchUserId, twitchAccessToken, twitchClientId) => {
     try {
+        // タイトルを取得
         // const currentTitle = await getStreamTitle(twitchUserId, twitchAccessToken, twitchClientId);
         // const previousTitle = await getSpreadsheetData('utils!B1');
 
@@ -77,20 +78,9 @@ export const checkTitleChange = async (twitchUserId, twitchAccessToken, twitchCl
                 isTitleChanged = false;
                 console.log(`nochange, current title: ${currentTitle}`);
             }
-        }
-
-        if (currentTitle !== previousTitle) {
-            if (isInited === true) {
-                isTitleChanged = true;
-                console.log(`changed to ${currentTitle}`);
-            } else {
-                isInited = true;
-                isTitleChanged = false;
-                console.log('Initialization is complete.');
-            }
         } else {
             isTitleChanged = false;
-            console.log(`nochange, current title: ${currentTitle}`);
+            console.log('title is not set');
         }
 
         return { isTitleChanged, currentTitle };
