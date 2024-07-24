@@ -5,6 +5,22 @@ import { getTwitchAccessTokenFromSpreadsheet } from './utils/tokens.js';
 
 dotenv.config();
 
+export const handler = async (event, context) => {
+    try {
+        await testMain();
+        return {
+            statusCode: 200,
+            body: JSON.stringify('Success'),
+        };
+    } catch (error) {
+        console.error('An error occurred while handler:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify('Error'),
+        };
+    }
+}
+
 const twitchClientId = process.env.TWITCH_CLIENT_ID;
 const twitchUserId = '605425209';
 const twitchUsername = 'oniyadayo';
@@ -37,13 +53,3 @@ const testMain = async () => {
         console.error('An error occurred while main function:', error);
     }
 }
-
-// 新しい実行フロー
-// 1. アクセストークンをGSから取得 ←CLEAR！
-// 2. 配信状態を確認　←CLEAR！
-// 3. 配信が開始されたら通知を送る　←CLEAR！
-// 4. タイトルの変更を確認　←CLEAR！
-// 5. タイトルが変更されたら通知を送る　←CLEAR！
-// 6. AWS Lambdaに実行できるようにする
-
-testMain();
