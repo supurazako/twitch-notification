@@ -98,12 +98,12 @@ export const checkStreamStatusChange = async (twitchUserId, twitchAccessToken, t
 
         // 配信がオンラインかどうかを確認
         // const currentStatus = await getStreamStatus(twitchUserId, twitchAccessToken, twitchClientId);
+        // 前回の状態を取得
+        // const previousStatus = await getSpreadsheetData('utils!B2');
         
         // テスト用
+        const previousStatus = false;
         const currentStatus = true;
-
-        // 前回の状態を取得
-        const previousStatus = await getSpreadsheetData('utils!B2');
 
         // 前回がfalseで今回がtrueの場合はtrueを返す。それ以外はfalseを返す
         if (currentStatus === true && previousStatus === false) {

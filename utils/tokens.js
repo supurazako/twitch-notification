@@ -32,7 +32,6 @@ const getTwitchAccessToken = async () => {
 // アクセストークンをスプレッドシートから取得
 export const getTwitchAccessTokenFromSpreadsheet = async () => {
     // スプレッドシートからアクセストークンを取得
-    // 格納場所は暫定のため、更新が必要 :TODO
     const spreadsheetRange = 'tokens!A2:B2';
     const response = await getSpreadsheetData(spreadsheetRange);
     console.log(`response: ${response}`);
@@ -53,7 +52,6 @@ export const getTwitchAccessTokenFromSpreadsheet = async () => {
         // アクセストークンを暗号化
         const encryptedAccessToken = await encrypto(accessToken);
         // スプレッドシートに新しいアクセストークン及び有効期限を格納
-        // 格納場所は暫定のため、更新が必要 :TODO
         const range = 'tokens!A2:B2';
         const values = [encryptedAccessToken, expiresIn];
         await updateSpreadsheetData(range, values);
