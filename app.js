@@ -9,11 +9,8 @@ const twitchClientId = process.env.TWITCH_CLIENT_ID;
 const twitchUserId = '605425209';
 const twitchUsername = 'oniyadayo';
 
-// TODO: 配信が開始されたら通知を送る
-
 const testMain = async () => {
     try {
-        // notifications.testSendTitleChangeNotifications(twitchUsername, 'test title');
         // accessTokenの取得
         const accessToken = await getTwitchAccessTokenFromSpreadsheet();
         
@@ -34,10 +31,7 @@ const testMain = async () => {
             await testSendTitleChangeNotifications(twitchUsername, currentTitle);
             console.log('sent title change notifications');
         }
-
-        // Lambda用の退出処理
-        // ここにコードを追加
-
+        
         process.exit(0);
     } catch (error) {
         console.error('An error occurred while main function:', error);

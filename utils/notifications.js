@@ -84,7 +84,6 @@ const sendEmail = async (subject, html, recipientMail) => {
             pass: senderMailPass, // 送信元メールのパスワード
         },
     });
-    // console.log(`recipient mail ${recipientMail}`);
 
     // メールのオプションを設定
     const mailOptions = {
@@ -104,8 +103,6 @@ const sendEmail = async (subject, html, recipientMail) => {
     }
 }
 
-
-// TODO: 配信開始通知を追加
 export const testSendStreamStartNotifications = async (twitchUsername) => {
     try {
         const date = getDate();
@@ -116,6 +113,8 @@ export const testSendStreamStartNotifications = async (twitchUsername) => {
         // ツイート用のメッセージ
         const tweetContent = `【配信開始】${twitchUsername}さんが配信開始しました！(開始日時:${date})`;
     
+        // メール用のメッセージ
+        // TODO: 本番環境では、コメントアウトを外す
         // const spreadsheetRange = `addresses!B2:B`
         // const recipientMail = await getSpreadsheetData(spreadsheetRange);
         const recipientMail = 'redhot30atama@gmail.com';
@@ -144,13 +143,13 @@ export const testSendTitleChangeNotifications = async (twitchUsername, currentTi
         const discordWebhookUrl = process.env.TEST_DISCORD_WEBHOOK_URL;
     
         // ツイート用のメッセージ
-        // TODO：タイトル変更のあとに改行をいれるかいれないか
         const tweetContent = `【タイトル変更】${twitchUsername}さんがタイトルを「${currentTitle}」に変更しました(変更日時:${date})`;
     
         // メール用のメッセージ
         // 送信先のアドレスを取得
-        const spreadsheetRange = `addresses!B2:B`
-        // let recipientMail = await getSpreadsheetData(spreadsheetRange);
+        // TODO: 本番環境では、コメントアウトを外す
+        // const spreadsheetRange = `addresses!B2:B`
+        // const recipientMail = await getSpreadsheetData(spreadsheetRange);
         // console.log(`recipientMail: ${recipientMail}`);
         const recipientMail = 'redhot30atama@gmail.com';
 
