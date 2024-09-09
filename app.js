@@ -1,13 +1,19 @@
-import dotenv from 'dotenv';
 import { checkTitleChange, checkStreamStatusChange } from './utils/streamInfo.js';
 import { testSendStreamStartNotifications, testSendTitleChangeNotifications } from './utils/notifications.js';
 import { getTwitchAccessTokenFromSpreadsheet } from './utils/tokens.js';
 
-dotenv.config();
+import AWS from 'aws-sdk';
+const sqs = AWS.SQS();
 
 export const handler = async (event) => {
     try {
+        console.log('Processing message:', event);
+        // メインの処理
         await testMain();
+        
+        // 次のメッセージをSQSに送信
+        await sendMessageToSqs();
+        
         return {
             statusCode: 200,
             body: JSON.stringify('Success'),
@@ -19,7 +25,22 @@ export const handler = async (event) => {
             body: JSON.stringify('Error'),
         };
     }
-}
+};
+
+const sendMessageToSqs = async () => {
+    const params = {
+        QueueUrl: process.env.QUEUE_URL,
+        MessageBody: JSON.stringify({ message: 'Hello, SQS!'}),
+        DelaySeconds: 10 // 10秒後にメッセージを送信
+    };
+    
+    try {
+        const result = await sqs.sendMessage(params).promise();
+        console.log(`Message sent to SQS with delay of 10 seconds: ${result}`);
+    } catch (error) {
+        console.error(`An error occurred while processing the message: ${error}`);
+    }
+};
 
 const twitchClientId = process.env.TWITCH_CLIENT_ID;
 const twitchUserId = '605425209';
@@ -48,8 +69,8 @@ const testMain = async () => {
             console.log('sent title change notifications');
         }
         
-        process.exit(0);
+        return;
     } catch (error) {
         console.error('An error occurred while main function:', error);
     }
-}
+};
