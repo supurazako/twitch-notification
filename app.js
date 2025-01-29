@@ -5,7 +5,7 @@ import { getTwitchAccessTokenFromSpreadsheet } from './utils/tokens.js';
 
 dotenv.config();
 
-export const handler = async (event) => {
+export const handler = async (event, context) => {
     try {
         await testMain();
         return {
